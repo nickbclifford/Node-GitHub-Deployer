@@ -11,6 +11,8 @@ try {
 }
 var port = process.env.PORT || config.port;
 
+var allRepos = config.repositories;
+
 /*
  * Require modules
  */
@@ -34,11 +36,13 @@ app.post('/', function(req, res) {
 	// gets the repository name from the webhook
 	var activeRepo = req.body.repository.full_name;
 	// grabs the path from the config.js
-	var workingPath = config.repositories[activeRepo];
+	var workingPath = allRepos[activeRepo];
 	require('simple-git')(workingPath)
 		.pull(function(err) {
 			if(err) {
-				console.log("Error when pulling from repository %s!", activeRepo);
+				console.log("Error when pulling from repository " + activeRepo + ": " + err.message);
+			} else {
+				console.log("Successfully pulled from repository " + activeRepo + "!");
 			}
 		});
 });
@@ -48,5 +52,18 @@ app.post('/', function(req, res) {
  */
 
 app.listen(port, function() {
-	console.log('Server is listening on *:' + port);
+	console.log('Server is listening on *:' + port + '.');
+	var listOfRepos = "";
+	allRepos.forEach(function(value, key) {
+		// if list is only one element long
+		if(allRepos.length == 1) {
+			listOfRepos += key + ".";
+		// if last element of list
+		} else if(value === allRepos[allRepos.length - 1]) {
+			listOfRepos += "and " + key + ".";
+		} else {
+			listOfRepos += key + ", ";
+		}
+	});
+	console.log('Listening for commits on ' + listOfRepos);
 });
