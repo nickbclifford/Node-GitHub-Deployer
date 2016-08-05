@@ -1,4 +1,5 @@
 node_modules
 src/config.js
+src/config.js~
 deploy/**
 !deploy/README.md
