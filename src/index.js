@@ -41,9 +41,11 @@ app.post('/', function(req, res) {
 	require('simple-git')(workingPath)
 		.pull(function(err) {
 			if(err) {
-				console.log("Error when pulling from repository " + activeRepo + ": " + err.message);
+			    console.log("Error when pulling from repository " + activeRepo + ": " + err.message);
+			    res.sendStatus(500);
 			} else {
-				console.log("Successfully pulled from repository " + activeRepo + "!");
+			    console.log("Successfully pulled from repository " + activeRepo + "!");
+			    res.sendStatus(200);
 			}
 		});
 });
