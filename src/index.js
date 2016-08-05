@@ -17,13 +17,6 @@ var port = process.env.PORT || config.port;
 
 var express = require('express');
 var app = express();
-var simpleGit = require('simple-git');
-
-/*require('simple-git')(__dirname + '/some-repo')
-        .pull()
-        .tags(function(err, tags) {
-        	console.log("Latest available tag: %s", tags.latest);
-		});*/
 
 /*
  * Middleware
@@ -38,7 +31,16 @@ app.use(bodyParser.json());
 
 app.post('/', function(req, res) {
 	console.log(req.body);
-	res.json(req.body);
+	// gets the repository name from the webhook
+	var activeRepo = req.body.repository.full_name;
+	// grabs the path from the config.js
+	var workingPath = config.repositories[activeRepo];
+	require('simple-git')(workingPath)
+		.pull(function(err) {
+			if(err) {
+				console.log("Error when pulling from repository %s!", activeRepo);
+			}
+		});
 });
 
 /*
