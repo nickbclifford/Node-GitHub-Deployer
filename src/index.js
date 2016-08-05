@@ -18,6 +18,7 @@ var allRepos = config.repositories;
  */
 
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 
 /*
@@ -54,15 +55,22 @@ app.post('/', function(req, res) {
 app.listen(port, function() {
 	console.log('Server is listening on *:' + port + '.');
 	var listOfRepos = "";
-	allRepos.forEach(function(value, key) {
+	var iterator = Object.keys(allRepos);
+	iterator.forEach(function(key) {
+		var value = allRepos[key];
 		// if list is only one element long
-		if(allRepos.length == 1) {
+		if(iterator.length == 1) {
 			listOfRepos += key + ".";
-		// if last element of list
-		} else if(value === allRepos[allRepos.length - 1]) {
+ 		// if last element of list (evil hack because objects are technically unordered)
+		} else if(value === allRepos[iterator[iterator.length - 1]]) {
 			listOfRepos += "and " + key + ".";
 		} else {
-			listOfRepos += key + ", ";
+			// because English punctuation rules are inconsistent, we have to check for two
+			if(iterator.length == 2) {
+				listOfRepos += key + " ";
+			} else {
+				listOfRepos += key + ", ";
+			}
 		}
 	});
 	console.log('Listening for commits on ' + listOfRepos);
