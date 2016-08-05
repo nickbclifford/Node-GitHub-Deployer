@@ -17,9 +17,11 @@ var allRepos = config.repositories;
  * Require modules
  */
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
+var fs 			= require('fs');
+var exec 		= require('child_process').exec;
+var express 	= require('express');
+var bodyParser 	= require('body-parser');
+var app 		= express();
 
 /*
  * Middleware
@@ -36,18 +38,45 @@ app.post('/', function(req, res) {
 	console.log(req.body);
 	// gets the repository name from the webhook
 	var activeRepo = req.body.repository.full_name;
-	// grabs the path from the config.js
-	var workingPath = allRepos[activeRepo];
-	require('simple-git')(workingPath)
-		.pull(function(err) {
-			if(err) {
-			    console.log("Error when pulling from repository " + activeRepo + ": " + err.message);
-			    res.sendStatus(500);
-			} else {
-			    console.log("Successfully pulled from repository " + activeRepo + "!");
-			    res.sendStatus(200);
-			}
-		});
+
+	var owner = req.body.repository.owner.name;
+	var repoName = req.body.repository.name;
+
+	var customScriptPath = __dirname + "/../deploy/" + owner + "/" + repoName + ".sh";
+
+	fs.stat(customScriptPath, function(statErr, stat) {
+		if(statErr == null) {
+			// there's a custom deploy script? fantastic. let's execute it.
+			exec(customScriptPath, function(execErr, stdout, stderr) {
+				if(execErr) {
+					console.log("Error when executing custom deploy script for repository " + activeRepo + "!");
+					res.sendStatus(500);
+				} else {
+					console.log("stdout: " + stdout);
+					console.log("stderr: " + stderr);
+					console.log("Successfully executed custom deploy script for repository " + activeRepo + "!");
+					res.sendStatus(200);
+				}
+			});
+		} else if (statErr.code == 'ENOENT') {
+			// custom deploy script doesn't exist? that's fine, just pull.
+			
+			// grabs the path from the config.js
+			var workingPath = allRepos[activeRepo];
+			require('simple-git')(workingPath).pull(function(pullErr) {
+				if(pullErr) {
+				    console.log("Error when pulling from repository " + activeRepo + "!");
+				    res.sendStatus(500);
+				} else {
+				    console.log("Successfully pulled from repository " + activeRepo + "!");
+				    res.sendStatus(200);
+				}
+			});
+		} else {
+			console.log("Error when checking for custom deploy script for repository " + activeRepo + "!");
+			res.sendStatus(500);
+		}
+	});
 });
 
 /*
