@@ -1,0 +1,29 @@
+{
+  "name": "node-github-deployer",
+  "version": "1.0.0",
+  "description": "Automagically detects any commits in a GitHub Repo and deploys it on a server.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelgira23/Node-GitHub-Deployer.git"
+  },
+  "keywords": [
+    "node",
+    "github",
+    "deployer",
+    "git"
+  ],
+  "author": "Michael Gira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michaelgira23/Node-GitHub-Deployer/issues"
+  },
+  "homepage": "https://github.com/michaelgira23/Node-GitHub-Deployer#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "simple-git": "^1.45.0"
+  }
+}
