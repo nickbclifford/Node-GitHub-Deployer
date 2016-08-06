@@ -39,8 +39,12 @@ app.post('/', function(req, res) {
 	// gets the repository name from the webhook
 	var activeRepo = req.body.repository.full_name;
 
-	var splitRef = req.body.ref.split("/");
-	var activeBranch = splitRef[splitRef.length - 1];
+	try {
+		var splitRef = req.body.ref.split("/");
+		var activeBranch = splitRef[splitRef.length - 1];
+	} catch(e) {
+		var activeBranch = "master";
+	}
 
 	var owner = req.body.repository.owner.name;
 	var repoName = req.body.repository.name;
