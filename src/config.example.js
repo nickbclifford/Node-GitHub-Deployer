@@ -7,7 +7,10 @@ module.exports = {
 	port: 42069,
 
 	repositories: {
-		"user/repo": "/home/user/dev/repo",
-		"other/repo-v2": "/home/user/dev/repo-v2"
+		"user/repo": {"master": "/home/user/dev/repo"},
+		"other/repo-v2": {
+			"master": "/home/user/dev/repo-v2/master",
+			"supercool-branch": "/home/user/dev/repo-v2/supercool"
+		}
 	}
 };
