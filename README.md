@@ -16,5 +16,8 @@ This project uses PM2, which is a program that daemonizes your apps. To start No
 ## Behavior/Deploying
 By default, when Node-GitHub-Deployer recieves a POST request from a GitHub webhook, it will run `git pull` on the local copy of the repository. If you have a separate script to use when deploying, put that `.sh` file in the `deploy` folder. There are further instructions on how to name the file in `deploy/README.md`.
 
+### Webhook Data + Scripts
+The webhook payload that was recieved will be passed to the script in the `$WEBHOOK` variable. It will be passed as a JSON string. We recommend you use a tool such as [jq](https://stedolan.github.io/jq/) to parse the data.
+
 ## When Creating Branches
 When creating a new branch that needs its own directory, be sure to configure Node-GitHub-Deployer beforehand to avoid any errors.
