@@ -9,3 +9,5 @@ For example, if I was writing a deploy script for "username/cool-repository" on 
      * `/username`
      	* `/cool-repository`
      		* `master.sh`
+
+The deploy scripts will be executed in the directory of the repository.
