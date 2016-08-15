@@ -49,13 +49,14 @@ app.post('/', function(req, res) {
 	var owner = req.body.repository.owner.name;
 	var repoName = req.body.repository.name;
 
+	var workingPath = allRepos[activeRepo][activeBranch];
 
 	var customScriptPath = __dirname + "/../deploy/" + owner + "/" + repoName + "/" + activeBranch + ".sh";
 
 	fs.stat(customScriptPath, function(statErr, stat) {
 		if(statErr == null) {
-			// there's a custom deploy script? fantastic. let's execute it. (with the webhook request as $WEBHOOK)
-			exec("WEBHOOK=" + JSON.stringify(req.body) + "; " + customScriptPath, function(execErr, stdout, stderr) {
+			// there's a custom deploy script? fantastic. let's execute it. (with the webhook request as $WEBHOOK, and in the repo directory)
+			exec("(WEBHOOK=" + JSON.stringify(req.body) + "; cd " + workingPath + "; " + customScriptPath + ")", function(execErr, stdout, stderr) {
 				if(execErr) {
 					console.log("Error when executing custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
 					res.sendStatus(500);
@@ -70,7 +71,6 @@ app.post('/', function(req, res) {
 			// custom deploy script doesn't exist? that's fine, just pull.
 			
 			// grabs the path from the config.js
-			var workingPath = allRepos[activeRepo][activeBranch];
 			require('simple-git')(workingPath).pull(function(pullErr) {
 				if(pullErr) {
 				    console.log("Error when pulling from repository " + activeRepo + " on branch " + activeBranch + "!");
