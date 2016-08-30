@@ -4,7 +4,7 @@
  */
 
 module.exports = {
-	port: 42069,
+	port: 1600,
 
 	repositories: {
 		"user/repo": {"master": "/home/user/dev/repo"},
