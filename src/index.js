@@ -54,44 +54,50 @@ app.post('/', function(req, res) {
 
 	var customScriptPath = __dirname + "/../deploy/" + owner + "/" + repoName + "/" + activeBranch + ".sh";
 
-	// check if active branch is configured
-	if(Object.keys(allRepos[activeRepo]).includes(activeBranch)) {
-		// if so, check for custom deploy script
-		fs.stat(customScriptPath, function(statErr, stat) {
-			if(statErr == null) {
-				// there's a custom deploy script? fantastic. let's execute it. (with the webhook request as $WEBHOOK, and in the repo directory)
-				exec("(WEBHOOK=" + JSON.stringify(req.body) + "; cd " + workingPath + "; " + customScriptPath + ")", function(execErr, stdout, stderr) {
-					if(execErr) {
-						console.log("Error when executing custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
-						res.sendStatus(500);
-					} else {
-						console.log("stdout: " + stdout);
-						console.log("stderr: " + stderr);
-						console.log("Successfully executed custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
-						res.sendStatus(200);
-					}
-				});
-			} else if (statErr.code == 'ENOENT') {
-				// custom deploy script doesn't exist? that's fine, just pull.
-				
-				// grabs the path from the config.js
-				require('simple-git')(workingPath).pull(function(pullErr) {
-					if(pullErr) {
-					    console.log("Error when pulling from repository " + activeRepo + " on branch " + activeBranch + "!");
-					    res.sendStatus(500);
-					} else {
-					    console.log("Successfully pulled from repository " + activeRepo + " on branch " + activeBranch + "!");
-					    res.sendStatus(200);
-					}
-				});
-			} else {
-				console.log("Error when checking for custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
-				res.sendStatus(500);
-			}
-		});
+	// check if active repo is configured
+	if(Object.keys(allRepos).includes(activeRepo)) {
+		// check if active branch is configured
+		if(Object.keys(allRepos[activeRepo]).includes(activeBranch)) {
+			// if so, check for custom deploy script
+			fs.stat(customScriptPath, function(statErr, stat) {
+				if(statErr == null) {
+					// there's a custom deploy script? fantastic. let's execute it. (with the webhook request as $WEBHOOK, and in the repo directory)
+					exec("(WEBHOOK=" + JSON.stringify(req.body) + "; cd " + workingPath + "; " + customScriptPath + ")", function(execErr, stdout, stderr) {
+						if(execErr) {
+							console.log("Error when executing custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
+							res.sendStatus(500);
+						} else {
+							console.log("stdout: " + stdout);
+							console.log("stderr: " + stderr);
+							console.log("Successfully executed custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
+							res.sendStatus(200);
+						}
+					});
+				} else if (statErr.code == 'ENOENT') {
+					// custom deploy script doesn't exist? that's fine, just pull.
+					
+					// grabs the path from the config.js
+					require('simple-git')(workingPath).pull(function(pullErr) {
+						if(pullErr) {
+						    console.log("Error when pulling from repository " + activeRepo + " on branch " + activeBranch + "!");
+						    res.sendStatus(500);
+						} else {
+						    console.log("Successfully pulled from repository " + activeRepo + " on branch " + activeBranch + "!");
+						    res.sendStatus(200);
+						}
+					});
+				} else {
+					console.log("Error when checking for custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
+					res.sendStatus(500);
+				}
+			});
+		} else {
+			// if not, just say that we detected the commit
+			console.log("Commit detected on repository" + activeRepo + " on branch " + activeBranch + ", but there is no local path for the branch.");
+		}
 	} else {
 		// if not, just say that we detected the commit
-		console.log("Commit detected on branch " + activeBranch + ", but there is no local path for the branch.")
+		console.log("Commit detected on repository " + activeRepo + ", but there is no local path for the repository.");
 	}
 });
 
