@@ -13,6 +13,8 @@ var port = process.env.PORT || config.port;
 
 var allRepos = config.repositories;
 
+var ngdRoot = __dirname.slice(0, -4) //remove "/src" from the end of __dirname
+
 /*
  * Require modules
  */
@@ -75,6 +77,11 @@ app.post('/', function(req, res) {
 					});
 				} else if (statErr.code == 'ENOENT') {
 					// custom deploy script doesn't exist? that's fine, just pull.
+
+					// however, if this repository is being pulled on, announce it first
+					if(ngdRoot === workingPath) {
+						console.log("About to pull on Node-GitHub-Deployer's repository. (" + activeRepo + ")");
+					}
 					
 					// grabs the path from the config.js
 					require('simple-git')(workingPath).pull(function(pullErr) {
