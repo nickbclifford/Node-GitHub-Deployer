@@ -93,7 +93,7 @@ app.post('/', function(req, res) {
 			});
 		} else {
 			// if not, just say that we detected the commit
-			console.log("Commit detected on repository" + activeRepo + " on branch " + activeBranch + ", but there is no local path for the branch.");
+			console.log("Commit detected on repository " + activeRepo + " on branch " + activeBranch + ", but there is no local path for the branch.");
 		}
 	} else {
 		// if not, just say that we detected the commit
