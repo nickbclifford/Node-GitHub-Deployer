@@ -11,20 +11,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaelgira23/Node-GitHub-Deployer.git"
+    "url": "git+https://github.com/MiningPotatoes/Node-GitHub-Deployer.git"
   },
   "keywords": [
     "node",
     "github",
     "deployer",
+    "deploy",
     "git"
   ],
-  "author": "Nick Clifford",
+  "author": {
+    "name": "Nick Clifford",
+    "email": "nick@nickclifford.me",
+    "url": "https://nickclifford.me"
+  },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/michaelgira23/Node-GitHub-Deployer/issues"
+    "url": "https://github.com/MiningPotatoes/Node-GitHub-Deployer/issues"
   },
-  "homepage": "https://github.com/michaelgira23/Node-GitHub-Deployer#readme",
+  "homepage": "https://github.com/MiningPotatoes/Node-GitHub-Deployer#readme",
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
