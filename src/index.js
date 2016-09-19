@@ -66,6 +66,8 @@ app.post('/', function(req, res) {
 					// there's a custom deploy script? fantastic. let's execute it. (with the webhook request as $WEBHOOK, and in the repo directory)
 					exec("(WEBHOOK=" + JSON.stringify(req.body) + "; cd " + workingPath + "; " + customScriptPath + ")", function(execErr, stdout, stderr) {
 						if(execErr) {
+							console.log("stdout: " + stdout);
+							console.log("stderr: " + stderr);
 							console.log("Error when executing custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
 							res.sendStatus(500);
 						} else {
