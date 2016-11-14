@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 
 /*
  * Make sure you create a config.js!
  */
 
 try {
-	var config = require(__dirname + '/config.js');
+	var config = require(__dirname + "/config.js");
 } catch(e) {
-	throw new Error('***PLEASE CREATE A CONFIG.JS ON YOUR LOCAL SYSTEM. REFER TO CONFIG.EXAMPLE.JS***');
+	throw new Error("***PLEASE CREATE A CONFIG.JS ON YOUR LOCAL SYSTEM. REFER TO CONFIG.EXAMPLE.JS***");
 }
 var port = process.env.PORT || config.port;
 
@@ -19,10 +19,10 @@ var ngdRoot = __dirname.slice(0, -4) //remove "/src" from the end of __dirname
  * Require modules
  */
 
-var fs 			= require('fs');
-var exec 		= require('child_process').exec;
-var express 	= require('express');
-var bodyParser 	= require('body-parser');
+var fs 			= require("fs");
+var exec 		= require("child_process").exec;
+var express 	= require("express");
+var bodyParser 	= require("body-parser");
 var app 		= express();
 
 /*
@@ -36,7 +36,7 @@ app.use(bodyParser.json());
  * Routes
  */
 
-app.post('/', function(req, res) {
+app.post("/", function(req, res) {
 	// console.log(req.body);
 
 	// gets the repository name from the webhook
@@ -54,7 +54,10 @@ app.post('/', function(req, res) {
 
 	var workingPath = allRepos[activeRepo][activeBranch];
 
-	var customScriptPath = __dirname + "/../deploy/" + owner + "/" + repoName + "/" + activeBranch + ".sh";
+	var customScriptPath = __dirname + "/../deploy/" + owner + "/" + repoName + "/";
+	var customScriptName = customScriptPath + activeBranch + ".sh";
+
+	var logFileName = customScriptPath + activeBranch + "." + Date.now();
 
 	// check if active repo is configured
 	if(Object.keys(allRepos).includes(activeRepo)) {
@@ -65,19 +68,28 @@ app.post('/', function(req, res) {
 				if(statErr == null) {
 					// there's a custom deploy script? fantastic. let's execute it. (with the webhook request as $WEBHOOK, and in the repo directory)
 					exec("(WEBHOOK=" + JSON.stringify(req.body) + "; cd " + workingPath + "; " + customScriptPath + ")", function(execErr, stdout, stderr) {
+						console.log("stdout: " + stdout);
+						console.log("stderr: " + stderr);
 						if(execErr) {
-							console.log("stdout: " + stdout);
-							console.log("stderr: " + stderr);
 							console.log("Error when executing custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
 							res.sendStatus(500);
+							// write log files for stdout and stderr if there's an error executing
+							fs.writeFile(logFileName + ".out", stdout, function(logErr) {
+								if(err) {
+									console.log("Error writing stdout log file for deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
+								}
+							});
+							fs.writeFile(logFileName + ".err", stderr, function(logErr) {
+								if(err) {
+									console.log("Error writing stderr log file for deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
+								}
+							});
 						} else {
-							console.log("stdout: " + stdout);
-							console.log("stderr: " + stderr);
 							console.log("Successfully executed custom deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
 							res.sendStatus(200);
 						}
 					});
-				} else if (statErr.code == 'ENOENT') {
+				} else if(statErr.code == "ENOENT") {
 					// custom deploy script doesn't exist? that's fine, just pull.
 
 					// however, if this repository is being pulled on, announce it first
@@ -86,7 +98,7 @@ app.post('/', function(req, res) {
 					}
 					
 					// grabs the path from the config.js
-					require('simple-git')(workingPath).pull(function(pullErr) {
+					require("simple-git")(workingPath).pull(function(pullErr) {
 						if(pullErr) {
 						    console.log("Error when pulling from repository " + activeRepo + " on branch " + activeBranch + "!");
 						    res.sendStatus(500);
@@ -115,7 +127,7 @@ app.post('/', function(req, res) {
  */
 
 app.listen(port, function() {
-	console.log('Server is listening on *:' + port + '.');
+	console.log("Server is listening on *:" + port + ".");
 	var listOfRepos = "";
 	var iterator = Object.keys(allRepos);
 	iterator.forEach(function(key) {
@@ -135,5 +147,5 @@ app.listen(port, function() {
 			}
 		}
 	});
-	console.log('Listening for commits on ' + listOfRepos);
+	console.log("Listening for commits on " + listOfRepos);
 });
