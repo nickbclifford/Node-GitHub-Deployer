@@ -75,12 +75,12 @@ app.post("/", function(req, res) {
 							res.sendStatus(500);
 							// write log files for stdout and stderr if there's an error executing
 							fs.writeFile(logFileName + ".out", stdout, function(logErr) {
-								if(err) {
+								if(logErr) {
 									console.log("Error writing stdout log file for deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
 								}
 							});
 							fs.writeFile(logFileName + ".err", stderr, function(logErr) {
-								if(err) {
+								if(logErr) {
 									console.log("Error writing stderr log file for deploy script for repository " + activeRepo + " on branch " + activeBranch + "!");
 								}
 							});
